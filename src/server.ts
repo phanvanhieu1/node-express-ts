@@ -1,8 +1,11 @@
+import { validateEnv } from "@core/util";
 import "dotenv/config";
 import App from "./app";
-import { IndexRoute } from "./module/index";
+import { IndexRoute } from "@module/index";
+import { UserRoute } from "@module/users";
 
-const routes = [new IndexRoute()];
+validateEnv();
+const routes = [new IndexRoute(), new UserRoute()];
 const app = new App(routes);
 
 app.listen();

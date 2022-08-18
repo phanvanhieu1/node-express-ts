@@ -1,9 +1,9 @@
-import Route from "core/interfaces/routes.interface";
+import { Route } from "@core/interfaces/index.interface";
 import { Router } from "express";
 import IndexController from "./index.controller";
 
 export default class IndexRoute implements Route {
-  public path: string = "/";
+  public path: string = "";
   public router = Router();
 
   public IndexController = new IndexController();

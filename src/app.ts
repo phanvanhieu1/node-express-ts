@@ -1,18 +1,44 @@
-import Route from "core/interfaces/routes.interface";
+import { Route } from "@core/interfaces/index.interface";
 import express from "express";
 import mongoose from "mongoose";
+import hpp from "hpp";
+import helmet from "helmet";
+import cors from "cors";
+import morgan from "morgan";
+import { errorMiddleware } from "@core/middlewares";
+import bodyParser from "body-parser";
 
 class App {
+  public app: express.Application;
+  private port: string | number;
+  public production: boolean;
+
   constructor(routes: Route[]) {
     this.app = express();
     this.port = process.env.PORT || 3000;
-    this.initializeRoutes(routes);
+    this.production = process.env.NODE_ENV == "production" ? true : false;
     this.connectDb();
+    this.initializeMiddleware();
+    this.initializeRoutes(routes);
   }
 
-  public app: express.Application;
+  private initializeMiddleware() {
+    if (this.production) {
+      this.app.use(hpp());
+      this.app.use(helmet());
+      this.app.use(morgan("combined"));
+      this.app.use(cors({ origin: "your.domain.com", credentials: true }));
+    } else {
+      this.app.use(morgan("dev"));
+      this.app.use(cors({ origin: true, credentials: true }));
+    }
+    // parse application/x-www-form-urlencoded
+    this.app.use(bodyParser.urlencoded({ extended: false }));
 
-  private port: string | number;
+    // parse application/json
+    this.app.use(bodyParser.json());
+    this.app.use(errorMiddleware);
+  }
 
   public listen(): void {
     this.app.listen(this.port, () => {
